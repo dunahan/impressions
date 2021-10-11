@@ -11,6 +11,8 @@ void main()
       SendMessageToPC(oPC, HELP);
     if (sChatMsg == "hello")
       ExecuteScript("_spawn_in_common", GetArea(oPC));
+    if (sChatMsg == "away!")
+      DespawnAnnoyingNPC(oPC);
     if (sChatMsg == "strip")
       MoveItems(oPC);
     if (sChatMsg == "equip")

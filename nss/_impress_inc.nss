@@ -4,6 +4,7 @@
 
 string HELP = "First at all, this chat is not case sensitive =)\n"+
               "For spawning in a NPC for testing purposes, chat hello\n"+
+              "Getting rid of this annoying NPC, chat away!\n"+
               "Strip off of your inventory, chat strip\n"+
               "Get your stripped inventory back, chat equip\n"+
               "Give your toon a level up, chat lvlup\n"+
@@ -66,6 +67,16 @@ void GiveBackItems(object oCreature)
     DestroyObject(oItem, 0.5f);
 
     oItem = GetNextItemInInventory(oGiveTo);
+  }
+}
+
+void DespawnAnnoyingNPC(object oPC)
+{
+  object oNPC = GetNearestObject(OBJECT_TYPE_CREATURE, oPC);
+  while (GetIsObjectValid(oNPC) && GetResRef(oNPC) == "nw_commale" || GetResRef(oNPC) == "nw_comfemale")
+  {
+    DestroyObject(oNPC, 0.01);
+    return;
   }
 }
 
