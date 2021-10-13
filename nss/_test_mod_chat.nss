@@ -1,4 +1,5 @@
 #include "_impress_inc"
+void givem(object oPC);
 
 void main()
 {
@@ -23,6 +24,18 @@ void main()
       SendMessageToPC(oPC, "items: "+IntToString(GetLocalInt(oPC, "impr_cr")));
     if (sChatMsg == "count")
       SendMessageToPC(oPC, "scan: "+IntToString(ScanForVisibleItemsOnPC(oPC)));
-
+    if (sChatMsg == "sorty")
+      ExecuteScript("_sortinvbyitmsiz", oPC);
+    if (sChatMsg == "givem")
+      givem(oPC);
 }
 
+void givem(object oPC)  // create some test items
+{
+  CreateItemOnObject("nw_it_medkit001", oPC);
+  CreateItemOnObject("nw_wswls001", oPC);
+  CreateItemOnObject("nw_wmgst005", oPC);
+  CreateItemOnObject("nw_wswbs001", oPC);
+  CreateItemOnObject("nw_wplhb001", oPC);
+  CreateItemOnObject("x3_it_camp", oPC);
+}

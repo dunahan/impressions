@@ -1,6 +1,10 @@
 #include "x2_inc_switches"
 #include "x2_inc_intweapon"
 #include "x3_inc_horse"
+const int INVENTORY_BOXES_PER_PAGE = 60;
+const int INVENTORY_PAGES_PER_TOON = 6;
+const int PLACEABLE_INV_BOXES_PAGE = 35;
+const int IMPRESS_ITM_WORN_ON_TOON = 3;
 
 string HELP = "First at all, this chat is not case sensitive =)\n"+
               "For spawning in a NPC for testing purposes, chat hello\n"+
@@ -12,33 +16,39 @@ string HELP = "First at all, this chat is not case sensitive =)\n"+
               "And at least, recount these items manually, chat count.";
 
 
-int IsItemImpressive(object oItem)                                              // irgendwie noch herausarbeiten, wie ein item als beeindruckend gewertet werden kann
-{                                                                               // größe, eigenschaften usw.?
-  int n = FALSE;
+int GetItemSizeInInventory(object oItem)
+{
+  int nBoxesInInv = FALSE;
+  int nBaseItemType = GetBaseItemType(oItem);                                   // from Daz and Shadguy on Discord
+  int nInvWidth = StringToInt(Get2DAString("baseitems", "InvSlotWidth", nBaseItemType));
+  int nInvHeigt = StringToInt(Get2DAString("baseitems", "InvSlotHeight", nBaseItemType));
 
-  return GetIsObjectValid(oItem); // n;                                         // aktuell nur ist das item existent!
+  nBoxesInInv = nInvWidth * nInvHeigt;                                          // count the boxes needed for
+
+  return nBoxesInInv;
 }
+
 
 int ScanForVisibleItemsOnPC(object oPC)
 {
   int i = 0, n;
-  object oItem = GetFirstItemInInventory(oPC);                                  // Was für Items sind im Inv, die sollten dann noch nach größe ausgefiltert werden
-  while (GetIsObjectValid(oItem))
+  object oItem = GetFirstItemInInventory(oPC);                                  // scan items in inv
+  while (GetIsObjectValid(oItem) &&                                             // is it valid AND
+         GetItemSizeInInventory(oItem) >= IMPRESS_ITM_WORN_ON_TOON)             // it's box-size is greater than 3, so it must be worn
   {
-     i += IsItemImpressive(oItem);                                              // wenn die ne bestimmte größe überschreiten, dann erst zählen! aktuell mal drin lassen...
-
+    i++;                                                                        // count it as visible
     oItem = GetNextItemInInventory(oPC);
   }
 
-  for (n=0; n<=6; n++)                                                          // scan die body slots, kopf bis umhang
-    i += IsItemImpressive(GetItemInSlot(n, oPC));
+  for (n=0; n<=6; n++)                                                          // scan the body slots, head to cloak => these are visible, if valid
+    i += GetIsObjectValid(GetItemInSlot(n, oPC));
 
-  i += IsItemImpressive(GetItemInSlot(INVENTORY_SLOT_BELT, oPC));               // zusätzlich ausgerüstete(r) gürtel, pfeile und bolzen
-  i += IsItemImpressive(GetItemInSlot(INVENTORY_SLOT_ARROWS, oPC));
-  i += IsItemImpressive(GetItemInSlot(INVENTORY_SLOT_BOLTS, oPC));
+  i += GetIsObjectValid(GetItemInSlot(INVENTORY_SLOT_BELT, oPC));               // additional, if belt, arrows or bolts are worn, these are visible too
+  i += GetIsObjectValid(GetItemInSlot(INVENTORY_SLOT_ARROWS, oPC));
+  i += GetIsObjectValid(GetItemInSlot(INVENTORY_SLOT_BOLTS, oPC));
 
-  SetLocalInt(oPC, "impr_cr", i);
-  return i;     // wiedergabe
+  SetLocalInt(oPC, "impr_cr", i);                                               // save the visible items
+  return i;
 }
 
 void MoveItems(object oCreature)
